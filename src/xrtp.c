@@ -25,6 +25,8 @@ typedef struct _main_arg
 
     char pt[PT_ENTRY_MAXIMUM][PT_DESCRIPT_MAXIMUM];
 
+    uint8_t b_mux;
+
     uint8_t b_print;
 
     uint8_t b_write_sei;
@@ -37,6 +39,7 @@ main_arg g_arg =
     {
         .port        = DEFAULT_PORT,
         .pt          = { "\0" },
+        .b_mux       = 0,
         .b_print     = 0,
         .b_write_sei = 0,
     };
@@ -163,7 +166,7 @@ int main(int argc, char **argv)
     }
 
     /* xrtp create */
-    h = xrtp_create( des, g_arg.b_print );
+    h = xrtp_create( des, g_arg.b_mux, g_arg.b_print );
     if( h == (xrtp *)NULL )
     {
         fprintf( stderr, "main> xrtp create failed.\n" );
@@ -225,6 +228,8 @@ static void usage(void)
     fprintf( stderr, "Syntax: xrtp [options] [pcap filename]\n"
                      "Options:\n" );
     fprintf( stderr,
+        "-m | --mux                         mux mode [%d]\n", g_arg.b_mux );
+    fprintf( stderr,
         "-p | --port <d>                    rtp port [%d].\n", DEFAULT_PORT);
     fprintf( stderr,
         "-d | --descript <pt:freq:type>     payload descript\n"
@@ -243,9 +248,10 @@ static void usage(void)
 
 static int parseArgs(int argc, char *argv[], main_arg *argsp)
 {
-    const char shortOptions[] = "p:d:rsh";
+    const char shortOptions[] = "mp:d:rsh";
 
     const struct option longOptions[] = {
+        { "mux",       no_argument,       NULL, 'm' },  
         { "port",      required_argument, NULL, 'p' },  
         { "descript",  required_argument, NULL, 'd' },
         { "result",    no_argument,       NULL, 'r' },
@@ -267,6 +273,10 @@ static int parseArgs(int argc, char *argv[], main_arg *argsp)
         }
 
         switch (c) {
+
+            case 'm':
+                argsp->b_mux = true;
+                break;
  
             case 'p':
                 if( sscanf( optarg, "%d", &argsp->port ) != 1 )

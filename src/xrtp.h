@@ -102,6 +102,7 @@ typedef struct _xrtp
     uint16_t      max_dropout;  /**< Max packet forward misordering */
     uint16_t      max_misorder; /**< Max packet backward misordering */
 
+    uint8_t  b_mux;
     uint8_t  b_print_out;
     uint8_t  b_first_line;
 

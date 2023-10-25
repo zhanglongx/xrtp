@@ -15,7 +15,7 @@
 #define XRTP_ERR_RTCP_ERROR     -101
 
 /* xrtp */
-xrtp *xrtp_create( payload_des *des, uint8_t b_print );
+xrtp *xrtp_create( payload_des *des, uint8_t b_mux, uint8_t b_print );
 int xrtp_process( xrtp *handle, uint64_t l_number, mtime_t time,
                               uint8_t *buf, int i_len, 
                               uint8_t rtp_type );
