@@ -13,6 +13,8 @@ typedef struct _payload_args
 
 extern char algorithm_available[][100];
 
+extern uint8_t b_write_sei;
+
 /* nothing */
 intptr_t no_init( void *a );
 void no_destroy( intptr_t handle );

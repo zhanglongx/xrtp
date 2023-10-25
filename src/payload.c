@@ -10,6 +10,9 @@
 
 #define SEI_NAL_MAXIMUM     1024
 
+// whether write SEI NAL
+uint8_t b_write_sei = 0;
+
 char algorithm_available[][100] = {
     "h264",
     "h265",
@@ -33,7 +36,6 @@ static int nal_unit_type( uint8_t *nal )
 {
     return nal[0] & 0x1F;
 }
-
 
 intptr_t no_init( void *a )
 {
@@ -123,7 +125,7 @@ const static
     i_payload_len = block->i_buffer;
 
 #define SEI_TIMESTAMP(type) \
-    if( (type) >= 1 && (type) <= 5 ) \
+    if( b_write_sei && ((type) >= 1 && (type) <= 5) ) \
     { \
         i_sei_len = write_sei_timestamp( h, block->i_rtp_timestamp ); \
         fwrite( h->nal, 1, i_sei_len, fp ); \

@@ -27,15 +27,18 @@ typedef struct _main_arg
 
     uint8_t b_print;
 
+    uint8_t b_write_sei;
+
     char filename[PCAP_FILE_NAME_MAXIMUN];
 
 }main_arg;
 
 main_arg g_arg = 
     {
-        .port    = DEFAULT_PORT,
-        .pt      = { "\0" },
-        .b_print = 0
+        .port        = DEFAULT_PORT,
+        .pt          = { "\0" },
+        .b_print     = 0,
+        .b_write_sei = 0,
     };
 
 static void usage(void);
@@ -138,6 +141,8 @@ int main(int argc, char **argv)
 
     xrtp *h = (xrtp *)NULL;
 
+    strncpy( g_arg.pt[0], "96:90000:h264", PT_DESCRIPT_MAXIMUM );
+
     if( parseArgs( argc, argv, &g_arg ) < 0 )
     {
         fprintf( stderr, "main> parseArgs error.\n" );
@@ -171,10 +176,7 @@ int main(int argc, char **argv)
     /* main loop */
     for( ; ; )
     {
-        if ( pcap_interface_read( p, &in ) < 0 )
-        {
-            // tempz
-            xrtp_printf( XRTP_ERR, "main> pcap_interface_read failed.\n" );
+        if ( pcap_interface_read( p, &in ) < 0 ) {
             break;
         }
 
@@ -229,19 +231,22 @@ static void usage(void)
     fprintf( stderr,
         "                                       type: payload type (available: %s)\n", alg );
     fprintf( stderr,
-        "-r | --result                      print analyzing result.\n" );
+        "-r | --result                      print analyzing result [%d].\n", g_arg.b_print );
+    fprintf( stderr,
+        "-s | --sei                         write sei with rtp timestamp [%d].\n", g_arg.b_write_sei );
     fprintf( stderr,
         "-h | --help                        print this message.\n\n");
 }
 
 static int parseArgs(int argc, char *argv[], main_arg *argsp)
 {
-    const char shortOptions[] = "p:d:rh";
+    const char shortOptions[] = "p:d:rsh";
 
     const struct option longOptions[] = {
         { "port",      required_argument, NULL, 'p' },  
         { "descript",  required_argument, NULL, 'd' },
         { "result",    no_argument,       NULL, 'r' },
+        { "sei",       no_argument,       NULL, 's' },
         { "help",      no_argument,       NULL, 'h' },
         {0, 0, 0, 0}
     };
@@ -270,6 +275,12 @@ static int parseArgs(int argc, char *argv[], main_arg *argsp)
                 break;
 
             case 'd':
+                for (i=0; i<PT_ENTRY_MAXIMUM; i++) {
+                    if (strlen(argsp->pt[i]) == 0) {
+                        break;
+                    }
+                }
+
                 if( i >= PT_ENTRY_MAXIMUM )
                 {
                     fprintf( stderr, "parseArgs> at most %d descript entrys\n", 
@@ -284,6 +295,11 @@ static int parseArgs(int argc, char *argv[], main_arg *argsp)
             case 'r':
                 argsp->b_print = true;
                 break;                
+
+            case 's':
+                argsp->b_write_sei = true;
+                b_write_sei = true;
+                break;
 
             case 'h':
             default:

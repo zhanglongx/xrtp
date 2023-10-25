@@ -42,13 +42,9 @@ typedef struct _pcap_data
 
 intptr_t pcap_interface_create( void *args, int i_port, int i_type );
 
-#define PCAP_INTERFACE_NO_INPUT   0
-#define PCAP_INTERFACE_PCAP_ERR   -1
-#define PCAP_INTERFACE_IP_ERR     -2
-#define PCAP_INTERFACE_PCAP_END   -3
-
 void pcap_interface_destroy(intptr_t h);
 
+/* return: see pcap.h Error code */
 int pcap_interface_read( intptr_t h, pcap_data *p_data );
 
 #endif //__PCAP_INTERFACE_H_

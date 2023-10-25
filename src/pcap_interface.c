@@ -128,7 +128,9 @@ int pcap_interface_read( intptr_t h, pcap_data *p_data )
     } else if (ret == 0) {
         return 0;
     } else {
-        xrtp_printf(XRTP_ERR, "pcap_next_ex() failed: %s\n", pcap_geterr(p->pcap));
-        return -1;
+        if (ret != PCAP_ERROR_BREAK ) {
+            xrtp_printf(XRTP_ERR, "pcap_next_ex() failed: %s\n", pcap_geterr(p->pcap));
+        }
+        return ret;
     }
 }
