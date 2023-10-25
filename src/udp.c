@@ -53,18 +53,26 @@ int extract_udp_info(const uint8_t *packet_data, int *src_port, int *dst_port, u
         return -1;  // Error
     }
 
-    // Determine capture type
-    if (packet_data[0] == 0) {
-        // Linux Cooked Capture
-        packet_data += sizeof(struct sll_header);
-    } else if (packet_data[0] == 0x02) {
-        // Null/Loopback
+    if (packet_data[0] == 0x02) {
         packet_data += 4;
     } else {
-        // Ethernet
-        packet_data += sizeof(struct ethhdr);
+        // XXX/FIXME: add len, and I don't know how to distinguish the two cases
+        struct sll_header * sll_header = (struct sll_header *)packet_data;
+        if (sll_header->sll_protocol == 0x0008) {
+            packet_data += sizeof(struct sll_header);
+            goto label_ip;
+        }
+
+        struct ethhdr *eth_hdr = (struct ethhdr *)packet_data;
+        if (eth_hdr->h_proto == 0x0008) {
+            packet_data += sizeof(struct ethhdr);
+            goto label_ip;
+        }
+
+        return -1;  // Error
     }
 
+label_ip:
     // Get IP header
     struct ip *ip_hdr = (struct ip *)packet_data;
     int ip_hdr_len = ip_hdr->ip_hl * 4;  // IP header length in bytes
