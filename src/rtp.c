@@ -117,7 +117,7 @@ int xrtp_process( xrtp *handle, uint64_t l_number, mtime_t time,
         goto err_xrtp_process;
     }
 
-    uint8_t mux_offset = 4 + !!handle->b_mux;
+    uint8_t mux_offset = 0 + 4 * !!handle->b_mux;
     if( block_init( block, buf + mux_offset, i_len - mux_offset, time ) < 0 )
     {
         xrtp_printf( XRTP_ERR, "xrtp_process> init block failed.\n" );
