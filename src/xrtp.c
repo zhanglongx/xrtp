@@ -228,7 +228,7 @@ static void usage(void)
     fprintf( stderr, "Syntax: xrtp [options] [pcap filename]\n"
                      "Options:\n" );
     fprintf( stderr,
-        "-m | --mux                         mux mode [%d]\n", g_arg.b_mux );
+        "-m | --mux                         mux mode (experimental) [%d]\n", g_arg.b_mux );
     fprintf( stderr,
         "-p | --port <d>                    rtp port [%d].\n", DEFAULT_PORT);
     fprintf( stderr,
