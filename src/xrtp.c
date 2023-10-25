@@ -177,6 +177,9 @@ int main(int argc, char **argv)
     for( ; ; )
     {
         if ( pcap_interface_read( p, &in ) < 0 ) {
+            if (in.l_number == 0) {
+                xrtp_printf( XRTP_ERR, "no capture processed, forget to set `-p`?\n" );
+            }
             break;
         }
 
@@ -222,7 +225,7 @@ static void usage(void)
     fprintf( stderr, "Syntax: xrtp [options] [pcap filename]\n"
                      "Options:\n" );
     fprintf( stderr,
-        "-p | --port <d>                    rtp port (maybe removed in next version) [%d].\n", DEFAULT_PORT);
+        "-p | --port <d>                    rtp port [%d].\n", DEFAULT_PORT);
     fprintf( stderr,
         "-d | --descript <pt:freq:type>     payload descript\n"
         "                                       pt:   rtp pt value\n"
