@@ -35,24 +35,23 @@ static int nal_unit_type( uint8_t *nal )
 }
 
 
-
-int no_init( void *a )
+intptr_t no_init( void *a )
 {
     // this handle should not be used
-    return 0x80000000;
+    return 0x8000000000000000L;
 }
 
-void no_destroy( int handle )
+void no_destroy( intptr_t handle )
 {
     return;
 }
 
-int no_decode( int handle, block_t *block )
+int no_decode( intptr_t handle, block_t *block )
 {
     return 0;
 }
 
-int h264payload_int( void *a )
+intptr_t h264payload_int( void *a )
 {
     payload_args *args = (payload_args *)a;
     payload_t *h;
@@ -73,7 +72,7 @@ int h264payload_int( void *a )
         goto err_h264payload_int;
     }
 
-    return (int)h;
+    return (intptr_t)h;
 
 err_h264payload_int:
 
@@ -83,10 +82,10 @@ err_h264payload_int:
     if( h )
         free( h );
 
-    return (int)NULL;
+    return (intptr_t)NULL;
 }
 
-void h264payload_destory( int handle )
+void h264payload_destory( intptr_t handle )
 {
     payload_t *h = (payload_t *)handle;
 
@@ -99,7 +98,7 @@ void h264payload_destory( int handle )
         free( h );
 }
 
-int h264payload_decode( int handle, block_t *block )
+int h264payload_decode( intptr_t handle, block_t *block )
 {
 const static 
     uint8_t prefix[4] = { 0x00, 0x00, 0x00, 0x01 };
@@ -275,7 +274,7 @@ const static
     
 }
 
-int h265payload_int( void *a )
+intptr_t h265payload_int( void *a )
 {
     payload_args *args = (payload_args *)a;
     payload_t *h;
@@ -296,7 +295,7 @@ int h265payload_int( void *a )
         goto err_h265payload_int;
     }
 
-    return (int)h;
+    return (intptr_t)h;
 
 err_h265payload_int:
 
@@ -306,10 +305,10 @@ err_h265payload_int:
     if( h )
         free( h );
 
-    return (int)NULL;
+    return (intptr_t)NULL;
 }
 
-void h265payload_destory( int handle )
+void h265payload_destory( intptr_t handle )
 {
     payload_t *h = (payload_t *)handle;
 
@@ -322,7 +321,7 @@ void h265payload_destory( int handle )
         free( h );
 }
 
-int h265payload_decode( int handle, block_t *block )
+int h265payload_decode( intptr_t handle, block_t *block )
 {
 const static 
     uint8_t prefix[4] = { 0x00, 0x00, 0x00, 0x01 };
@@ -392,7 +391,7 @@ const static
     return 0;
 }
 
-int defpayload_int( void *a )
+intptr_t defpayload_int( void *a )
 {
     payload_args *args = (payload_args *)a;
     payload_t *h;
@@ -413,7 +412,7 @@ int defpayload_int( void *a )
         goto err_defpayload_int;
     }
 
-    return (int)h;
+    return (intptr_t)h;
 
 err_defpayload_int:
 
@@ -423,10 +422,10 @@ err_defpayload_int:
     if( h )
         free( h );
 
-    return (int)NULL;
+    return (intptr_t)NULL;
 }
 
-void defpayload_destory( int handle )
+void defpayload_destory( intptr_t handle )
 {
     payload_t *h = (payload_t *)handle;
 
@@ -439,7 +438,7 @@ void defpayload_destory( int handle )
         free( h );
 }
 
-int defpayload_decode( int handle, block_t *block )
+int defpayload_decode( intptr_t handle, block_t *block )
 {
     payload_t *h = (payload_t *)handle;
     FILE *fp = h->fp;
@@ -462,7 +461,7 @@ int defpayload_decode( int handle, block_t *block )
     
 }
 
-int hpvcpayload_int( void *a )
+intptr_t hpvcpayload_int( void *a )
 {
     payload_args *args = (payload_args *)a;
     payload_t *h;
@@ -483,7 +482,7 @@ int hpvcpayload_int( void *a )
         goto err_hpvcpayload_int;
     }
 
-    return (int)h;
+    return (intptr_t)h;
 
 err_hpvcpayload_int:
 
@@ -493,10 +492,10 @@ err_hpvcpayload_int:
     if( h )
         free( h );
 
-    return (int)NULL;
+    return (intptr_t)NULL;
 }
 
-void hpvcpayload_destory( int handle )
+void hpvcpayload_destory( intptr_t handle )
 {
     payload_t *h = (payload_t *)handle;
 
@@ -509,7 +508,7 @@ void hpvcpayload_destory( int handle )
         free( h );
 }
 
-int hpvcpayload_decode( int handle, block_t *block )
+int hpvcpayload_decode( intptr_t handle, block_t *block )
 {
     payload_t *h = (payload_t *)handle;
     FILE *fp = h->fp;
@@ -561,7 +560,7 @@ static int write_sei_timestamp( payload_t *h, mtime_t pts )
     bs_init( s, &h->nal[5], SEI_NAL_MAXIMUM-5 );
 
     sprintf( timestamp, "%I64u", pts );
-    length = strlen(timestamp)+1+16;
+    length = (int)strlen(timestamp)+1+16;
 
     bs_realign( s );
     bs_write( s, 8, 5 );

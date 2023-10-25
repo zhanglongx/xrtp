@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
-typedef int64_t        mtime_t;
+typedef time_t mtime_t;
 
 #endif

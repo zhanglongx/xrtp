@@ -4,6 +4,7 @@
 #include <datatype.h>
 
 #include "sdp.h"
+#include "xrtp.h"
 
 #define XRTP_ERR_OK         0
 #define XRTP_ERR_ALLOC      -1
@@ -14,11 +15,11 @@
 #define XRTP_ERR_RTCP_ERROR     -101
 
 /* xrtp */
-int xrtp_create( payload_des *des, uint8_t b_print );
-int xrtp_process( int handle, uint64_t l_number, mtime_t time,
+xrtp *xrtp_create( payload_des *des, uint8_t b_print );
+int xrtp_process( xrtp *handle, uint64_t l_number, mtime_t time,
                               uint8_t *buf, int i_len, 
                               uint8_t rtp_type );
-int xrtp_flush( int handle );
-void xrtp_free( int handle );
+int xrtp_flush( xrtp *handle );
+void xrtp_free( xrtp *handle );
 
 #endif _RTP_H_

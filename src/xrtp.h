@@ -36,9 +36,9 @@ struct _block_t
 
 typedef struct _rtp_pt_t
 {
-    int   (*init) ( void * );
-    void  (*destroy) ( int  );
-    int   (*decode) ( int , block_t * );
+    intptr_t   (*init) ( void * );
+    void  (*destroy) ( intptr_t  );
+    int   (*decode) ( intptr_t , block_t * );
     uint32_t  frequency; /* RTP clock rate (Hz) */
     uint8_t   number;
 }rtp_pt_t;
@@ -60,7 +60,7 @@ typedef struct _rtp_source_t
     uint16_t last_seq;    /* sequence of the next dequeued packet */
     block_t *blocks;      /* re-ordered blocks queue */
     
-    int        op;        /* Per-source private payload data handle */
+    intptr_t   op;        /* Per-source private payload data handle */
     rtp_pt_t   pt;        /* PT specified functions */
 }rtp_source_t;
 
@@ -88,6 +88,10 @@ typedef struct _rtp_session_t
     rtcp_source_t  *control;
 
 }rtp_session_t;
+
+#ifdef xrtp
+# undef xrtp
+#endif
 
 typedef struct _xrtp
 {

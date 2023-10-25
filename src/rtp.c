@@ -8,7 +8,7 @@
 #include "payload.h"
 #include "session.h"
 
-int xrtp_create( payload_des *des, uint8_t b_print )
+xrtp *xrtp_create( payload_des *des, uint8_t b_print )
 {
     xrtp *h;
     payload_des *p;
@@ -58,7 +58,7 @@ int xrtp_create( payload_des *des, uint8_t b_print )
         des = des->next;
     }    
     
-    return (int)h;
+    return h;
 
 err_xrtp_create:
 
@@ -75,12 +75,12 @@ err_xrtp_create:
     if( h )
         free( h );
 
-    return (int)NULL;
+    return (xrtp *)NULL;
 }
 
-void xrtp_free( int handle )
+void xrtp_free( xrtp *handle )
 {
-    xrtp *h = (xrtp *)handle;
+    xrtp *h = handle;
     payload_des *p;
 
     for( p = h->descript; p;  )
@@ -97,11 +97,11 @@ void xrtp_free( int handle )
         free( h );
 }
 
-int xrtp_process( int handle, uint64_t l_number, mtime_t time,
+int xrtp_process( xrtp *handle, uint64_t l_number, mtime_t time,
                               uint8_t *buf, int i_len, 
                               uint8_t rtp_type )
 {
-    xrtp *h = (xrtp *)handle;
+    xrtp *h = handle;
     block_t *block;
 
     int ret;
@@ -211,9 +211,9 @@ err_xrtp_process:
     return ret;
 }
 
-int xrtp_flush( int handle )
+int xrtp_flush( xrtp *handle )
 {
-    xrtp *h = (xrtp *)handle;
+    xrtp *h = handle;
     
     if( !h->session->srcv || !h->session->srcv->blocks )
         return 0;

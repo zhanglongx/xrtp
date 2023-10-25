@@ -148,7 +148,7 @@ rtp_source_create ( const rtp_session_t *session,
     source->last_seq = init_seq - 1;
     source->blocks   = NULL;
 
-    source->op       = (int)NULL;
+    source->op       = (intptr_t)NULL;
     source->pt.init  = NULL;
 
     if( rtp_autodetect( source, ptype, des ) < 0 )
@@ -158,7 +158,7 @@ rtp_source_create ( const rtp_session_t *session,
     // FIXME: user specified filename
     sprintf( arg.file_name, "pt%d_0x%x.es", ptype, ssrc );
     source->op = source->pt.init( &arg );
-    if( source->op == (int)NULL )
+    if( source->op == (intptr_t)NULL )
     {
         xrtp_printf( XRTP_OUT, "rtp_source_create> create pt failed.\n" );
         goto err_rtp_source_create;
@@ -382,7 +382,7 @@ rtp_queue ( xrtp *h, block_t *block )
     if (block->p_buffer[0] & 0x20)
     {
         uint8_t padding = block->p_buffer[block->i_buffer - 1];
-        if ((padding == 0) || (block->i_buffer < (12u + padding)))
+        if ((padding == 0) || (block->i_buffer < (int)(12u + padding)))
             goto drop; /* illegal value */
 
         block->i_buffer -= padding;
@@ -794,7 +794,7 @@ static inline void __block_Init( block_t *b, void *buf, size_t size )
     /* Fill all fields to their default */
     b->p_next = NULL;
     b->p_buffer = buf;
-    b->i_buffer = size;
+    b->i_buffer = (int)size;
     b->i_flags = 0;
     b->i_nb_samples = 0;
     b->i_pts = 0;
