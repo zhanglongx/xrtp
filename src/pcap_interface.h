@@ -28,13 +28,14 @@ typedef struct _pcap_file_args
 
 typedef struct _pcap_data
 {
+    // packet number, may not same as pcap packet number
     uint64_t l_number;
     // XXX: relative time, not absolute time
     mtime_t time;
-    
-    uint16_t s_port;
-
-    uint8_t rtp[1500];
+    // udp dst port 
+    uint16_t port;
+    // udp payload (aka. rtp)
+    uint8_t rtp[1600];
     int  i_rtp_size;    
     
 }pcap_data;

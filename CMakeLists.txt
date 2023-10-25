@@ -46,6 +46,8 @@ set(src_xrtp
         src/sdp.h
         src/session.c
         src/session.h
+        src/udp.c
+        src/udp.h
         src/xrtp.c
         src/xrtp.h
 )

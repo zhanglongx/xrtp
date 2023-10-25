@@ -11,6 +11,7 @@
 #endif
 
 #include "pcap_interface.h"
+#include "udp.h"
 #include "xrtp_printf.h"
 
 typedef struct _pcap_interface{
@@ -99,10 +100,11 @@ int pcap_interface_read( intptr_t h, pcap_data *p_data )
     pcap_interface *p = (pcap_interface *)h;
     struct pcap_pkthdr *header;
     const uint8_t *data;
-    struct timeval base;
+    struct timeval base = {0, 0};
     int ret = pcap_next_ex(p->pcap, &header, &data);
     if (ret == 1) {
         if (sizeof(p_data->rtp) < header->caplen) {
+            xrtp_printf(XRTP_ERR, "buffer is too small\n");
             return -1;
         }
 
@@ -110,12 +112,19 @@ int pcap_interface_read( intptr_t h, pcap_data *p_data )
             base = header->ts;
         }
 
-        p_data->s_port = ntohs(*(uint16_t *)(data + 2));
-        p_data->time = (header->ts.tv_sec - base.tv_sec) * 1000000 + (header->ts.tv_usec - base.tv_usec);
-        p_data->i_rtp_size = header->caplen;
+        int src_port, dst_port;
+        uint8_t *payload;
 
-        memcpy(p_data->rtp, data, header->caplen);
-        return header->caplen;
+        if (extract_udp_info(data, &src_port, &dst_port, &payload, &p_data->i_rtp_size) < 0) {
+            xrtp_printf(XRTP_ERR, "extract_udp_info() failed\n");
+            return -1;
+        }
+
+        p_data->port = (uint16_t)dst_port;
+        p_data->time = (header->ts.tv_sec - base.tv_sec) * 1000000 + (header->ts.tv_usec - base.tv_usec);
+
+        memcpy(p_data->rtp, payload, p_data->i_rtp_size);
+        return p_data->i_rtp_size;
     } else if (ret == 0) {
         return 0;
     } else {

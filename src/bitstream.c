@@ -36,11 +36,11 @@ static uint32_t endian_fix32( uint32_t x )
 }
 static uint64_t endian_fix64( uint64_t x )
 {
-    return endian_fix32(x>>32) + ((uint64_t)endian_fix32(x)<<32);
+    return endian_fix32(x>>32) + ((uint64_t)endian_fix32((uint32_t)x)<<32);
 }
 static intptr_t endian_fix( intptr_t x )
 {
-    return WORD_SIZE == 8 ? endian_fix64(x) : endian_fix32(x);
+    return WORD_SIZE == 8 ? endian_fix64(x) : endian_fix32((uint32_t)x);
 }
 
 void bs_init( bs_t *s, void *p_data, int i_data )

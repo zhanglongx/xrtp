@@ -166,7 +166,7 @@ int main(int argc, char **argv)
         goto err_main;
     }
 
-    pcap_data in;
+    pcap_data in = { 0 };
 
     /* main loop */
     for( ; ; )
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
         in.l_number++;
 
         // rtp or rtcp
-        uint8_t b_is_rtcp = in.s_port == g_arg.port ? 0 : 1;
+        uint8_t b_is_rtcp = in.port == g_arg.port ? 0 : 1;
 
         if (xrtp_process( h, in.l_number, in.time, in.rtp, in.i_rtp_size, b_is_rtcp ) < 0)
         {
