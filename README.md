@@ -41,7 +41,7 @@ In general, xrtp reads the pcap file and parses the RTP packets (and correspondi
 
 - description
 
-    `description` define the payload type, frequency (HZ) and payload type.
+    description defines the payload type, frequency (HZ) and payload type.
 
     use `-d <pt>:<freq>:<type>` to pass description to xrtp.
 
