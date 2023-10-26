@@ -13,8 +13,6 @@
 
 #define XRTP_VERSION            "1.1.0"
 
-FILE *g_fpin;
-
 #define PT_DESCRIPT_MAXIMUM     30
 #define PT_ENTRY_MAXIMUM        5
 #define DEFAULT_PORT            19000
