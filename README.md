@@ -23,7 +23,7 @@ In general, xrtp reads the pcap file and parses the RTP packets (and correspondi
 
 ## Usage
 
-1. make sure you have installed [Npcap](https://npcap.com), and have wpcap.dll and packet.dll is in your PATH.
+1. make sure you have installed [Npcap](https://npcap.com), and have wpcap.dll and packet.dll in your PATH.
 
 2. run xrtp.exe
 
