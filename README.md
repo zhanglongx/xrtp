@@ -2,13 +2,15 @@
 
 xrtp is a tool for RTP packet analysis.
 
+In general, xrtp reads the pcap file and parses the RTP packets (and corresponding RTCP packets) all the way through it, depending on the port selection. xrtp can do timestamp parsing, jitter analysis, payload extraction, etc.
+
 ⚠️ xrtp use [Npcap](https://npcap.com), and supports Windows only for now.
 
 ## Build
 
 1. Setup CMake.
 
-2. Setup MSVC(2019 or above is preferred).
+2. Setup MSVC (2019 or above is preferred).
 
 3. Build
 
@@ -21,7 +23,7 @@ xrtp is a tool for RTP packet analysis.
 
 ## Usage
 
-1. make sure you have installed [Npcap](https://npcap.com), and wpcap.dll and packet.dll is in your PATH.
+1. make sure you have installed [Npcap](https://npcap.com), and have wpcap.dll and packet.dll is in your PATH.
 
 2. run xrtp.exe
 
@@ -51,4 +53,4 @@ xrtp is a tool for RTP packet analysis.
 
 - sei
 
-    when payload type is h.264/h.265, xrtp can write an special sei into the payload.
+    when payload type is h.264/h.265, xrtp can write a special sei with rtp timestamp into the payload. It can help you to find the frame in the pcap file.
