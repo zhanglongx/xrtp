@@ -82,7 +82,7 @@ typedef struct _rtcp_source_t
 /** State for a RTP session: */
 typedef struct _rtp_session_t
 {
-    rtp_source_t  *srcv;
+    rtp_source_t  *srcv[32];
     unsigned       srcc;
 
     rtcp_source_t  *control;

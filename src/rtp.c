@@ -217,9 +217,6 @@ int xrtp_flush( xrtp *handle )
 {
     xrtp *h = handle;
     
-    if( !h->session->srcv || !h->session->srcv->blocks )
-        return 0;
-    
     if( rtp_dequeue( h->session, _I64_MAX ) < 0 )
     {
         xrtp_printf( XRTP_ERR, "xrtp_process> dequeue failed.\n" );

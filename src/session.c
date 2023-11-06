@@ -40,6 +40,8 @@ static rtp_source_t *
 rtp_source_create ( const rtp_session_t *session,
                     uint32_t ssrc, uint16_t init_seq, 
                     uint8_t ptype, payload_des *des );
+static rtp_source_t *
+rtp_source_find ( const rtp_session_t *session, uint32_t ssrc );
 static void
 rtp_source_destroy ( const rtp_session_t *session,
                      rtp_source_t *source );
@@ -67,7 +69,6 @@ rtp_session_create ( )
     if (session == NULL)
         return NULL;
 
-    session->srcv = NULL;
     session->srcc = 0;
 
     session->control = NULL;
@@ -83,8 +84,9 @@ void rtp_session_destroy ( rtp_session_t *session )
 {
     assert( session );
 
-    if( session->srcv )
-        rtp_source_destroy ( session, session->srcv );
+    for (unsigned i = 0; i<session->srcc; i++) {
+        rtp_source_destroy ( session, session->srcv[i] );
+    }
 
     if( session->control )
         rtcp_source_destroy( session->control );
@@ -177,6 +179,24 @@ err_rtp_source_create:
     return NULL;
 }
 
+static rtp_source_t *
+rtp_source_find ( const rtp_session_t *session, uint32_t ssrc )
+{
+    rtp_source_t *src = NULL;
+    unsigned i;
+    for (i = 0; i < session->srcc; i++)
+    {
+        src = session->srcv[i];
+
+        if( src->ssrc == ssrc )
+            break;
+    }
+
+    /* too much ssrc */
+    assert(i <= session->srcc);
+
+    return src;
+}
 
 /**
  * Destroys an RTP source and its associated streams.
@@ -354,7 +374,7 @@ rtp_find_ptype (const rtp_session_t *session, rtp_source_t *source,
 {
     uint8_t ptype = rtp_ptype (block);
 
-    return (const struct rtp_pt_t *)&session->srcv->pt;
+    return (const struct rtp_pt_t *)&source->pt;
 }
 
 int
@@ -392,7 +412,8 @@ rtp_queue ( xrtp *h, block_t *block )
     const uint16_t seq  = rtp_seq (block);
     const uint32_t ssrc = GetDWBE (block->p_buffer + 8);
 
-    if( session->srcv == NULL )
+    src = rtp_source_find( session, ssrc );
+    if( src == NULL )
     {
         uint8_t ptype = rtp_ptype (block);
     
@@ -401,7 +422,7 @@ rtp_queue ( xrtp *h, block_t *block )
         if (src == NULL)
             goto drop;
 
-        session->srcv = src;
+        session->srcv[session->srcc++] = src;
 
         pt = &src->pt;
         
@@ -409,7 +430,6 @@ rtp_queue ( xrtp *h, block_t *block )
     }
     else 
     {
-        src = session->srcv;
         pt  = &src->pt;
 
         /* In most case, we know this source already */
@@ -601,63 +621,66 @@ drop:
 
 int rtp_dequeue ( const rtp_session_t *session, mtime_t now )
 {
-    rtp_source_t *src = session->srcv;
-    block_t *block;
+    for (unsigned i = 0; i < session->srcc; i++) {
 
-    /* Because of IP packet delay variation (IPDV), we need to guesstimate
-     * how long to wait for a missing packet in the RTP sequence
-     * (see RFC3393 for background on IPDV).
-     *
-     * This situation occurs if a packet got lost, or if the network has
-     * re-ordered packets. Unfortunately, the MSL is 2 minutes, orders of
-     * magnitude too long for multimedia. We need a trade-off.
-     * If we underestimated IPDV, we may have to discard valid but late
-     * packets. If we overestimate it, we will either cause too much
-     * delay, or worse, underflow our downstream buffers, as we wait for
-     * definitely a lost packets.
-     *
-     */
-    while (((block = src->blocks)) != NULL)
-    {
-        if ((int16_t)(rtp_seq (block) - (src->last_seq + 1)) <= 0)
-        {   /* Next (or earlier) block ready, no need to wait */
-            rtp_decode ( session, src );
-            continue;
-        }
+        rtp_source_t *src = session->srcv[i];
+        block_t *block;
 
-        /* Wait for 3 times the inter-arrival delay variance (about 99.7%
-         * match for random gaussian jitter).
+        /* Because of IP packet delay variation (IPDV), we need to guesstimate
+         * how long to wait for a missing packet in the RTP sequence
+         * (see RFC3393 for background on IPDV).
+         *
+         * This situation occurs if a packet got lost, or if the network has
+         * re-ordered packets. Unfortunately, the MSL is 2 minutes, orders of
+         * magnitude too long for multimedia. We need a trade-off.
+         * If we underestimated IPDV, we may have to discard valid but late
+         * packets. If we overestimate it, we will either cause too much
+         * delay, or worse, underflow our downstream buffers, as we wait for
+         * definitely a lost packets.
+         *
          */
-        mtime_t deadline;
-        const rtp_pt_t *pt = rtp_find_ptype (session, src, block, NULL);
-        if (pt)
-            deadline = CLOCK_FREQ * 3 * src->avg_jitter / pt->frequency;
-        else
-            deadline = 0; /* no jitter estimate with no frequency :( */
-
-        /* Make sure we wait at least for 25 msec */
-        if (deadline < (CLOCK_FREQ / 40))
-            deadline = CLOCK_FREQ / 40;
-
-        /* Additionnaly, we implicitly wait for the packetization time
-         * multiplied by the number of missing packets. block is the first
-         * non-missing packet (lowest sequence number). We have no better
-         * estimated time of arrival, as we do not know the RTP timestamp
-         * of not yet received packets. */
-        deadline += block->i_pts;
-        if (now >= deadline)
+        while (((block = src->blocks)) != NULL)
         {
-            rtp_decode ( session, src );
-            continue;
-        }
+            if ((int16_t)(rtp_seq(block) - (src->last_seq + 1)) <= 0)
+            { /* Next (or earlier) block ready, no need to wait */
+                rtp_decode(session, src);
+                continue;
+            }
+
+            /* Wait for 3 times the inter-arrival delay variance (about 99.7%
+             * match for random gaussian jitter).
+             */
+            mtime_t deadline;
+            const rtp_pt_t *pt = rtp_find_ptype(session, src, block, NULL);
+            if (pt)
+                deadline = CLOCK_FREQ * 3 * src->avg_jitter / pt->frequency;
+            else
+                deadline = 0; /* no jitter estimate with no frequency :( */
+
+            /* Make sure we wait at least for 25 msec */
+            if (deadline < (CLOCK_FREQ / 40))
+                deadline = CLOCK_FREQ / 40;
+
+            /* Additionnaly, we implicitly wait for the packetization time
+             * multiplied by the number of missing packets. block is the first
+             * non-missing packet (lowest sequence number). We have no better
+             * estimated time of arrival, as we do not know the RTP timestamp
+             * of not yet received packets. */
+            deadline += block->i_pts;
+            if (now >= deadline)
+            {
+                rtp_decode(session, src);
+                continue;
+            }
 #if 0
         if (*deadlinep > deadline)
             *deadlinep = deadline;
         pending = true; /* packet pending in buffer */
 #endif
-        break;
+            break;
+        }
     }
-    
+
     return 0;
 }
 
@@ -702,7 +725,7 @@ uint32_t rtcp_timestamp( const block_t *block )
 int
 rtcp_update ( rtp_session_t *session, block_t *block )
 {
-    rtp_source_t  *src = session->srcv;
+    rtp_source_t  *src;
     rtcp_source_t *control;
     uint32_t ssrc;
 
@@ -731,12 +754,9 @@ rtcp_update ( rtp_session_t *session, block_t *block )
     if( (block->p_buffer[1]) != 200 ) /* not start with SR */
         goto drop;
 
-    if( src == NULL )
-        goto drop;
-
     ssrc = GetDWBE( block->p_buffer + 4 );
 
-    if( 0 /*ssrc != src->ssrc*/ ) // tempz!!
+    if( !(src = rtp_source_find(session, ssrc))) 
         goto drop;
 
     // FIXME: read all compounds of RTCP packet
