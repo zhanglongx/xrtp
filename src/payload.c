@@ -354,7 +354,24 @@ const static
     switch((payload[0] & 0x7E)>>1)
     {
         case 48:    /* Aggregation Packet (AP) */
-            assert(0);  // FIXME
+            // FIXME: DON is not used
+            head = payload + 2;              /* skip Header */
+            i_payload_len -= 2;
+
+            while(i_payload_len > 0)
+            {
+                int i_nal_len = ((head[0] << 8) | head[1]);
+                head += 2;
+                i_payload_len -= (2 + i_nal_len);
+
+                fwrite(prefix, 1, 4, fp);
+                fwrite(head, 1, i_nal_len, fp);
+
+                head += i_nal_len;
+            }   
+
+            assert(i_payload_len == 0);
+
             break;
         case 49:    /* FU */
             if(((payload[2] & 0x80) == 0x80)        /* S bit set */

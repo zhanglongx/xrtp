@@ -53,3 +53,8 @@ dkms.conf
 
 build/
 .vscode/
+
+# Stream ES files
+/*.es
+/*.h264
+/*.h265
