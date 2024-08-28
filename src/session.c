@@ -402,7 +402,7 @@ rtp_queue ( xrtp *h, block_t *block )
     if (block->p_buffer[0] & 0x20)
     {
         uint8_t padding = block->p_buffer[block->i_buffer - 1];
-        if ((padding == 0) || (block->i_buffer < (int)(12u + padding)))
+        if (block->i_buffer < (int)(12u + padding))
             goto drop; /* illegal value */
 
         block->i_buffer -= padding;
