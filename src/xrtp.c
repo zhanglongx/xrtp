@@ -11,7 +11,7 @@
 
 #include "pcap_interface.h"
 
-#define XRTP_VERSION            "1.1.1"
+#define XRTP_VERSION            "1.1.2"
 
 #define PT_DESCRIPT_MAXIMUM     30
 #define PT_ENTRY_MAXIMUM        5
