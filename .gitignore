@@ -58,3 +58,6 @@ build/
 /*.es
 /*.h264
 /*.h265
+
+# Npcap SDK
+/npcap

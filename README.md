@@ -12,7 +12,13 @@ In general, xrtp reads the pcap file and parses the RTP packets (and correspondi
 
 2. Setup MSVC (2019 or above is preferred).
 
-3. Build
+3. Get Npcap SDK
+
+    - Download Npcap [SDK](https://npcap.com/dist/npcap-sdk-1.13.zip)
+
+    - Extract the zip file to `npcap` folder.
+
+4. Build
 
     ```cmd
         > mkdir build
