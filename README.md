@@ -14,12 +14,12 @@ In general, xrtp reads the pcap file and parses the RTP packets (and correspondi
 
 3. Build
 
-```cmd
-    > mkdir build
-    > cd build
-    > cmake .. -G "<Visual Studio ToolChain>" 
-    > cmake --build . --config <Config>
-```
+    ```cmd
+        > mkdir build
+        > cd build
+        > cmake .. -G "<Visual Studio ToolChain>" 
+        > cmake --build . --config <Config>
+    ```
 
 ## Usage
 
@@ -27,9 +27,9 @@ In general, xrtp reads the pcap file and parses the RTP packets (and correspondi
 
 2. run xrtp.exe
 
-```cmd
-    > xrtp.exe -p <dst port> -d <pt>:<freq>:<type> <file.pcap>
-```
+    ```cmd
+        > xrtp.exe -p <dst port> -d <pt>:<freq>:<type> <file.pcap>
+    ```
 
 3. see more details in `xrtp.exe --help`.
 
