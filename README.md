@@ -2,7 +2,7 @@
 
 xrtp is a tool for RTP packet analysis.
 
-In general, xrtp reads the pcap file and parses the RTP packets (and corresponding RTCP packets) all the way through it, depending on the port selection. xrtp can do timestamp parsing, jitter analysis, payload extraction, etc.
+In general, xrtp reads the pcap file and parses the RTP packets (and corresponding RTCP packets) all the way through it, depending on the port selection. xrtp will do timestamp parsing, jitter analysis, payload extraction, etc.
 
 ⚠️ xrtp use [Npcap](https://npcap.com), and supports Windows only for now.
 
